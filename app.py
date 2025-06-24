@@ -306,14 +306,23 @@ def extract_grn_data(text):
     table_start = re.search(r'S No\s+Article', text, re.IGNORECASE)
     if table_start:
         table_text = text[table_start.start():]
+        # Updated pattern to handle multi-line descriptions
         item_pattern = re.compile(
-            r'(\d+)\s+(\d+)\s+([\w\s\.\-%]+?)\s+(\d{13})\s+(\w+)\s+(\d+)\s+(\d+)\s+(\d+)\s+([\d\.]+)\b'
+            r'(\d+)\s+(\d+)\s+([\w\s\.\-%#]+?)\s+(\d{13})\s+(\w+)\s+(\d+)\s+(\d+)\s+(\d+)\s+([\d\.]+)\b'
         )
         for match in item_pattern.finditer(table_text):
+            # Clean description by collapsing extra spaces
+            description = re.sub(r'\s+', ' ', match.group(3).strip())
             items.append({
-                "S No": match.group(1), "Article": match.group(2), "Item Description": match.group(3).strip(),
-                "EAN Number": match.group(4), "UoM": match.group(5), "Challan Qty": match.group(6),
-                "Received Qty": match.group(7), "Accepted Qty": match.group(8), "MRP": match.group(9)
+                "S No": match.group(1), 
+                "Article": match.group(2), 
+                "Item Description": description,
+                "EAN Number": match.group(4), 
+                "UoM": match.group(5), 
+                "Challan Qty": match.group(6),
+                "Received Qty": match.group(7), 
+                "Accepted Qty": match.group(8), 
+                "MRP": match.group(9)
             })
 
     return metadata, items
